@@ -91,10 +91,6 @@ This part uses Node.js built-in HTTP module without Express.js.
 node part-B-core-http/server.js
 ```
 
-Server runs on:
-
-http://localhost:3001
-
 ### Available Routes
 
 | Method | Endpoint | Description |
@@ -107,7 +103,9 @@ http://localhost:3001
 
 URL:
 
-`http://localhost:3001/tasks`
+```text
+http://localhost:3001/tasks
+```
 
 Body (JSON):
 
@@ -124,18 +122,21 @@ This part uses Express.js to build REST API endpoints for managing tasks.
 ### Run the Server
 
 ```bash
-npm run dev
+node part-C-express/server.js
 ```
 
 Server runs on:
 
+```text
 http://localhost:3001
+```
 
 ### API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/v1/tasks` | Get all tasks |
+| GET | `/api/v1/tasks/:id` | Get task by ID |
 | POST | `/api/v1/tasks` | Create a task |
 | PUT | `/api/v1/tasks/:id` | Update a task |
 | DELETE | `/api/v1/tasks/:id` | Delete a task |
@@ -148,7 +149,23 @@ GET /api/v1/tasks
 
 Returns all available tasks.
 
-### 2. Create a Task
+### 2. Get Task By ID
+
+```http
+GET /api/v1/tasks/123456
+```
+
+Returns a specific task using its ID.
+
+If the task does not exist, the API returns:
+
+```json
+{
+  "message": "Task not found"
+}
+```
+
+### 3. Create a Task
 
 ```http
 POST /api/v1/tasks
@@ -162,7 +179,9 @@ Request Body:
 }
 ```
 
-### 3. Update a Task
+Returns a success message and the created tasks with status code `201`.
+
+### 4. Update a Task
 
 ```http
 PUT /api/v1/tasks/123456
@@ -178,7 +197,7 @@ Request Body:
 
 Replace `123456` with an actual task ID returned by the API.
 
-### 4. Delete a Task
+### 5. Delete a Task
 
 ```http
 DELETE /api/v1/tasks/123456
@@ -186,9 +205,13 @@ DELETE /api/v1/tasks/123456
 
 Replace `123456` with an actual task ID.
 
+Deletes the selected task from the tasks array.
+
 ## Part D: Validation and HTTP Status Codes
 
-The Express API uses validation and appropriate HTTP status codes.
+The Express API uses request validation and appropriate HTTP status codes to handle successful requests and errors.
+
+### HTTP Status Codes
 
 | Status Code | Meaning | Usage |
 |---|---|---|
@@ -197,9 +220,11 @@ The Express API uses validation and appropriate HTTP status codes.
 | 400 | Bad Request | Missing or empty task title |
 | 404 | Not Found | Task does not exist |
 
-### Validation
+### Task Title Validation
 
 The API checks whether the task title is provided and is not empty.
+
+This validation is used in POST and PUT requests.
 
 ```javascript
 if (!req.body.title || !req.body.title.trim()) {
@@ -209,16 +234,64 @@ if (!req.body.title || !req.body.title.trim()) {
 }
 ```
 
-## Testing
+### Example Validation Response
 
-All API endpoints can be tested using Postman.
+Request Body:
 
-1. Start the server.
+```json
+{
+  "title": ""
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Task title is required"
+}
+```
+
+Status Code: `400 Bad Request`
+
+### Error Handling
+
+If a task ID does not exist, the API returns:
+
+```json
+{
+  "message": "Task not found"
+}
+```
+
+Status Code: `404 Not Found`
+
+## Testing with Postman
+
+All Express API endpoints can be tested using Postman.
+
+1. Start the Express server.
 2. Open Postman.
-3. Select the HTTP method.
+3. Select the required HTTP method (GET, POST, PUT, DELETE).
 4. Enter the API URL.
 5. For POST and PUT, select Body → raw → JSON.
-6. Send the request and check the response.
+6. Enter the request data.
+7. Click Send and check the response and HTTP status code.
+
+### Postman Testing Examples
+
+| Test | Expected Status |
+|---|---|
+| Get all tasks | 200 |
+| Get task by ID | 200 |
+| Create a valid task | 201 |
+| Update a task | 200 |
+| Delete a task | 200 |
+| Create task with empty title | 400 |
+| Create task without title | 400 |
+| Get non-existing task | 404 |
+| Update non-existing task | 404 |
+| Delete non-existing task | 404 |
 
 ## Data Storage
 
